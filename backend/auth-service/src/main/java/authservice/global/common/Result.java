@@ -12,18 +12,18 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ApiResponse<T> {
-	
-	private final boolean success;
-	private final int status;
-	private final String message;
-	
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	private final T data;
-	private final LocalDateTime timestamp;
-	
-    public static <T> ApiResponse<T> success(T data) {
-        return ApiResponse.<T>builder()
+public class Result<T> {
+
+    private final boolean success;
+    private final int status;
+    private final String message;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private final T data;
+    private final LocalDateTime timestamp;
+
+    public static <T> Result<T> success(T data) {
+        return Result.<T>builder()
                 .success(true)
                 .status(200)
                 .message("요청이 성공적으로 처리되었습니다.")
@@ -32,8 +32,8 @@ public class ApiResponse<T> {
                 .build();
     }
 
-    public static <T> ApiResponse<T> success(String message, T data) {
-        return ApiResponse.<T>builder()
+    public static <T> Result<T> success(String message, T data) {
+        return Result.<T>builder()
                 .success(true)
                 .status(200)
                 .message(message)
@@ -42,8 +42,8 @@ public class ApiResponse<T> {
                 .build();
     }
 
-    public static <T> ApiResponse<T> noContent() {
-        return ApiResponse.<T>builder()
+    public static <T> Result<T> noContent() {
+        return Result.<T>builder()
                 .success(true)
                 .status(204)
                 .message("요청이 성공적으로 처리되었으나 응답 데이터가 없습니다.")
