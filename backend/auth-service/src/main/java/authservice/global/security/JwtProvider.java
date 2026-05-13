@@ -36,9 +36,10 @@ public class JwtProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
     private static final String BEARER_TYPE = "Bearer";
-
+    
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;
+    
 
     private final String secretKey;
     private SecretKey key;
@@ -53,9 +54,9 @@ public class JwtProvider {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public TokenDto generateToken(Authentication authentication) {
-        String accessToken = generateAccessToken(authentication);
-        String refreshToken = generateRefreshToken(authentication);
+    public TokenDto generateToken(Authentication authentication, Long userId) {
+        String accessToken = generateAccessToken(authentication, userId);
+        String refreshToken = generateRefreshToken(userId);
 
         return TokenDto.builder()
                 .grantType(BEARER_TYPE)
@@ -64,7 +65,7 @@ public class JwtProvider {
                 .build();
     }
 
-    public String generateAccessToken(Authentication authentication) {
+    public String generateAccessToken(Authentication authentication, Long userId) {
         long now = (new Date()).getTime();
 
         String authorities = authentication.getAuthorities().stream()
@@ -72,18 +73,18 @@ public class JwtProvider {
                 .collect(Collectors.joining(","));
 
         return Jwts.builder()
-                .subject(authentication.getName())
+                .subject(String.valueOf(userId))
                 .claim(AUTHORITIES_KEY, authorities)
                 .expiration(new Date(now + ACCESS_TOKEN_EXPIRE_TIME))
                 .signWith(key)
                 .compact();
     }
 
-    public String generateRefreshToken(Authentication authentication) {
+    public String generateRefreshToken(Long userId) {
         long now = (new Date()).getTime();
 
         return Jwts.builder()
-                .subject(authentication.getName())
+                .subject(String.valueOf(userId))
                 .expiration(new Date(now + REFRESH_TOKEN_EXPIRE_TIME))
                 .signWith(key)
                 .compact();
@@ -128,5 +129,9 @@ public class JwtProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
+    }
+    
+    public long getRefreshTokenExpirationMillis() {
+    	return REFRESH_TOKEN_EXPIRE_TIME;
     }
 }

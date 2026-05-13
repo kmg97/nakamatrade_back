@@ -23,6 +23,18 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional(readOnly = true)
+    public User findByUsername(String userName) {
+    	return userRepository.findByUsername(userName)
+    			.orElseThrow(()->new BusinessException(ErrorCode.USER_NOT_FOUND));
+    }
+    
+    @Transactional(readOnly = true)
+    public User findByIdWithRoles(Long userId) {
+    	return userRepository.findByIdWithRoles(userId)
+    			.orElseThrow(()->new BusinessException(ErrorCode.USER_NOT_FOUND));
+    }
+    
     @Transactional
     public SignupResponse signup(SignupRequest request) {
         if (usernameExistsCheck(request.username())) {
@@ -59,6 +71,7 @@ public class UserService {
         user.resetFailCount();
     }
 
+    @Transactional
     public boolean usernameExistsCheck(String username) {
         return userRepository.existsByUsername(username);
     }
