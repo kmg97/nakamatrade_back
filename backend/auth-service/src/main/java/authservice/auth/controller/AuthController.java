@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import authservice.auth.dto.LoginRequest;
 import authservice.auth.dto.TokenDto;
+import authservice.auth.dto.RefreshTokenRequest;
 import authservice.auth.service.AuthService;
 import authservice.global.common.Result;
 import jakarta.validation.Valid;
@@ -42,5 +43,24 @@ public class AuthController {
         TokenDto tokenDto = authService.login(request);
 
         return ResponseEntity.ok(Result.success(tokenDto));
+    }
+    
+    
+    @Operation(summary = "토큰 재발행")
+    @ApiResponse(
+    		responseCode = "200",
+    		description = "요청시 전달한 Refresh 토큰이 유효한 경우 응답메시지와 JWT가 전달된다."
+    )
+    @ApiErrorResponse(value = {
+    		ErrorCode.INVALID_REFRESH_TOKEN,
+    		ErrorCode.TOKEN_NOT_FOUND,
+    		ErrorCode.USER_NOT_FOUND
+    		
+    })
+    @PostMapping(value = "/reissue", produces = CONTENT_TYPE_JSON)
+    public ResponseEntity<Result<TokenDto>> reissue(@RequestBody RefreshTokenRequest tokenDto) {
+    	TokenDto refreshTokenDto = authService.reissue(tokenDto.refreshToken());
+    	
+    	return ResponseEntity.ok(Result.success(refreshTokenDto));
     }
 }
